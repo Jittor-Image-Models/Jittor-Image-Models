@@ -1,5 +1,6 @@
 # Jittor-Pytorch-Image-Models
-Original copyright of Ross Wightman, modifications by VIP Group.  
+Original copyright of Ross Wightman, modifications by VIP Group. 
+
 Pytorch-image-models is an excellent project created by Ross Wightman and perfected by many outstanding contributors. More about pytorch-image-models: https://github.com/rwightman/pytorch-image-models    
 Jittor is a high-performance deep learning framework based on JIT compiling and meta-operators. More about Jittor deep learning framework: https://github.com/Jittor/jittor  
 
