@@ -1,0 +1,4 @@
+torch>=1.4.0
+torchvision>=0.5.0
+jittor>=1.2.3
+scipy>=1.6.3
