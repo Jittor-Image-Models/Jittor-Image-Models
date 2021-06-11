@@ -37,4 +37,4 @@ Xuhao Sun: sun_xu_hao@163.com
 
 Yang Shen: shenyang_98@njust.edu.cn
 
-Xiu-Shen Wei (Primary contact): weixs.gm@gmail.com
+[Xiu-Shen Wei](http://www.weixiushen.com/) (Primary contact): weixs.gm@gmail.com
