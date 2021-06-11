@@ -1,6 +1,6 @@
 # Jittor-Image-Models
 
-Jittor Image Models (`timm-jittor`) is a project modified form Py**T**orch **Im**age **M**odels (`timm`) which helps fine-tune pytorch models list systematically by timm in the Jittor deep learning framework. 
+Jittor Image Models (`timm-jittor`) is a project modified from Py**T**orch **Im**age **M**odels (`timm`) which helps fine-tune pytorch models list systematically by timm in the Jittor deep learning framework. 
 
 PyTorch Image Models is an excellent project created by Ross Wightman and perfected by many outstanding contributors. More details about pytorch-image-models: https://github.com/rwightman/pytorch-image-models  
 
