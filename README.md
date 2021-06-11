@@ -36,6 +36,6 @@ If you have any questions about our work, please do not hesitate to contact us b
 
 Yang Shen: shenyang_98@njust.edu.cn
 
-Xu-Hao Sun: sun_xu_hao@163.com
+Xuhao Sun: sun_xu_hao@163.com
 
-Xiu-Shen Wei(Primary contact): weixs.gm@gmail.com
+Xiu-Shen Wei (Primary contact): weixs.gm@gmail.com
