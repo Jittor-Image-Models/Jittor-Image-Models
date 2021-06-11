@@ -30,3 +30,12 @@ More models provided by timm will be updated in the future.
 ## Results
 Model validation results can be found in the following url: https://rwightman.github.io/pytorch-image-models/results/  
 Validation results in the Jittor deep learning framework will be updated in the future.
+
+##Contacts
+If you have any questions about our work, please do not hesitate to contact us by emails.
+
+Yang shen: shenyang_98@njust.edu.cn
+
+Xu-Hao Sun: sun_xu_hao@163.com
+
+Xiu-Shen Wei: weixs.gm@gmail.com
