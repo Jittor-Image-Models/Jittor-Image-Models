@@ -34,8 +34,8 @@ Validation results in the Jittor deep learning framework will be updated in the 
 ## Contacts
 If you have any questions about our work, please do not hesitate to contact us by emails.
 
-Yang Shen: shenyang_98@njust.edu.cn
-
 Xuhao Sun: sun_xu_hao@163.com
+
+Yang Shen: shenyang_98@njust.edu.cn
 
 Xiu-Shen Wei (Primary contact): weixs.gm@gmail.com
