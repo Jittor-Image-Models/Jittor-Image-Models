@@ -25,11 +25,10 @@ We reproduce part of [pytorch-image-models](https://github.com/rwightman/pytorch
     * ResNeXt - https://arxiv.org/abs/1611.05431
 * ViT - https://arxiv.org/abs/2010.11929
 
-More models provided by timm will be updated in the future.
+More models provided by timm will continue to be updated.
 
 ## Results
 Model validation results can be found in the following url: https://rwightman.github.io/pytorch-image-models/results/  
-Validation results in the Jittor deep learning framework will be updated in the future.
 
 ## Contacts
 If you have any questions about our work, please do not hesitate to contact us by emails.
