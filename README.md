@@ -13,7 +13,7 @@ We reproduce part of [pytorch-image-models](https://github.com/rwightman/pytorch
 ### June 10, 2021
 * Add HRNet models.
 
-## Now Supported Models
+## Currently Supported Models
 * DeiT (Vision Transformer) - https://arxiv.org/abs/2012.12877
 * EfficientNet
     * EfficientNet (B0-B7) - https://arxiv.org/abs/1905.11946
@@ -34,8 +34,8 @@ Validation results in the Jittor deep learning framework will be updated in the 
 ## Contacts
 If you have any questions about our work, please do not hesitate to contact us by emails.
 
-Yang shen: shenyang_98@njust.edu.cn
+Yang Shen: shenyang_98@njust.edu.cn
 
 Xu-Hao Sun: sun_xu_hao@163.com
 
-Xiu-Shen Wei: weixs.gm@gmail.com
+Xiu-Shen Wei(Primary contact): weixs.gm@gmail.com
