@@ -1,6 +1,6 @@
 # Jittor-Image-Models
 
-Jittor Image Models (`timm-jittor`) is a project modified from Py**T**orch **Im**age **M**odels (`timm`) which helps fine-tune pytorch models list systematically by timm in the Jittor deep learning framework. 
+Jittor Image Models (`timm-jittor`) is a project modified from Py**T**orch **Im**age **M**odels (`timm`) which helps fine-tune pytorch models list systematically by timm in the Jittor deep learning framework. Based on it, we achieved the first place of the [Dog Species Classification](https://www.educoder.net/competitions/index/Jittor-2) track in the Jittor AI Competition in 2021.
 
 PyTorch Image Models is an excellent project created by Ross Wightman and perfected by many outstanding contributors. More details about pytorch-image-models: https://github.com/rwightman/pytorch-image-models  
 
