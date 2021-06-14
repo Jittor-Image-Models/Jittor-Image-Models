@@ -4,7 +4,7 @@ Jittor Image Models (`timm-jittor`) is a library for pulling together a wide var
 
 Our `timm-jittor` is modified from Py**T**orch **Im**age **M**odels (`timm`) which helps fine-tune PyTorch models list systematically by `timm` in Jittor.
 
-More specifically, PyTorch Image Models is an excellent project created by Ross Wightman and perfected by many outstanding contributors. Details about `timm` is available at: https://github.com/rwightman/pytorch-image-models  
+More specifically, PyTorch Image Models (`timm`) is an excellent project created by Ross Wightman and perfected by many outstanding contributors. Details about `timm` is available at: https://github.com/rwightman/pytorch-image-models  
 
 Jittor is a high-performance deep learning framework based on JIT compiling and meta-operators. More details about Jittor can be found via: https://github.com/Jittor/jittor  
 
