@@ -1,4 +1,4 @@
-# Jittor-Image-Models
+# Jittor Image Models
 
 Jittor Image Models (`timm-jittor`) is a library for pulling together a wide variety of SOTA deep learning models in the [Jittor](https://github.com/Jittor/jittor) framework. Based on timm-jittor, we achieved **the first place** of the [Dog Species Classification](https://www.educoder.net/competitions/index/Jittor-2) track in the Jittor AI Competition in 2021.
 
