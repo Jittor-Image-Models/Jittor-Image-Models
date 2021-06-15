@@ -1,6 +1,6 @@
 # Jittor Image Models
 
-**J**ittor **Im**age **M**odels (`jimm`) is a library for pulling together a wide variety of SOTA deep learning models in the [Jittor](https://github.com/Jittor/jittor) framework. Based on timm-jittor, we achieved **the first place** of the [Dog Species Classification](https://www.educoder.net/competitions/index/Jittor-2) track in the Jittor AI Competition in 2021.
+**J**ittor **Im**age **M**odels (`jimm`) is a library for pulling together a wide variety of SOTA deep learning models in the [Jittor](https://github.com/Jittor/jittor) framework. Based on `jimm`, we achieved **the first place** of the [Dog Species Classification](https://www.educoder.net/competitions/index/Jittor-2) track in the Jittor AI Competition in 2021.
 
 Our `jimm` is modified from Py**T**orch **Im**age **M**odels (`timm`) which helps fine-tune PyTorch models list systematically by `timm` in Jittor.
 
