@@ -1,14 +1,14 @@
 # Jittor Image Models
 
-**J**ittor **I**mage **M**odels (`JIM`) is a library for pulling together a wide variety of SOTA deep learning models in the [Jittor](https://github.com/Jittor/jittor) framework. Based on timm-jittor, we achieved **the first place** of the [Dog Species Classification](https://www.educoder.net/competitions/index/Jittor-2) track in the Jittor AI Competition in 2021.
+**J**ittor **Im**age **M**odels (`jimm`) is a library for pulling together a wide variety of SOTA deep learning models in the [Jittor](https://github.com/Jittor/jittor) framework. Based on timm-jittor, we achieved **the first place** of the [Dog Species Classification](https://www.educoder.net/competitions/index/Jittor-2) track in the Jittor AI Competition in 2021.
 
-Our `timm-jittor` is modified from Py**T**orch **Im**age **M**odels (`timm`) which helps fine-tune PyTorch models list systematically by `timm` in Jittor.
+Our `jimm` is modified from Py**T**orch **Im**age **M**odels (`timm`) which helps fine-tune PyTorch models list systematically by `timm` in Jittor.
 
 More specifically, PyTorch Image Models (`timm`) is an excellent project created by Ross Wightman and perfected by many outstanding contributors. Details about `timm` is available at: https://github.com/rwightman/pytorch-image-models  
 
 Jittor is a high-performance deep learning framework based on JIT compiling and meta-operators. More details about Jittor can be found via: https://github.com/Jittor/jittor  
 
-In our `timm-jittor`, we reproduce part of [pytorch-image-models](https://github.com/rwightman/pytorch-image-models) in the [Jittor](https://github.com/Jittor/jittor) deep learning framework, and also provide a training demo to make it easier for you to get started.
+In our `jimm`, we reproduce part of [pytorch-image-models](https://github.com/rwightman/pytorch-image-models) in the [Jittor](https://github.com/Jittor/jittor) deep learning framework, and also provide a training demo to make it easier for you to get started.
 
 ## Update News
 
