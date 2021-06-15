@@ -10,7 +10,7 @@ from jittor import transform
 from jittor.dataset import Dataset
 from jittor.lr_scheduler import CosineAnnealingLR
 
-from timm_jittor import resnext101_32x8d
+from jimm import resnext101_32x8d
 jt.flags.use_cuda = 0
 
 def get_img(path):
