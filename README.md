@@ -32,6 +32,14 @@ More models provided by timm will continue to be updated.
 ## Results
 Model validation results can be found in the following url: https://rwightman.github.io/pytorch-image-models/results/  
 
+## TODO List
+TODO List consists the backbone we are going to reproduce within two months.
+- [ ] RepVGG - https://arxiv.org/abs/2101.03697
+- [ ] Big Transfer ResNetV2 (BiT) - https://arxiv.org/abs/1912.11370
+- [ ] NFNet-F - https://arxiv.org/abs/2102.06171
+- [ ] Weakly-supervised (WSL) Instagram pretrained / ImageNet tuned ResNeXt101 - https://arxiv.org/abs/1805.00932
+- [ ] Semi-supervised (SSL) / Semi-weakly Supervised (SWSL) ResNet/ResNeXts - https://arxiv.org/abs/1905.00546
+
 ## Contacts
 If you have any questions about our work, please do not hesitate to contact us by emails.
 
