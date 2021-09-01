@@ -11,7 +11,6 @@ Jittor is a high-performance deep learning framework based on JIT compiling and 
 In our `jimm`, we reproduce part of [pytorch-image-models](https://github.com/rwightman/pytorch-image-models) in the [Jittor](https://github.com/Jittor/jittor) deep learning framework, and also provide a training demo to make it easier for you to get started.
 
 ## Update News
-
 ### June 10, 2021
 * Add HRNet models.
 
@@ -39,6 +38,8 @@ TODO List consists the backbone we are going to reproduce within two months.
 - [ ] NFNet-F - https://arxiv.org/abs/2102.06171
 - [ ] Weakly-supervised (WSL) Instagram pretrained / ImageNet tuned ResNeXt101 - https://arxiv.org/abs/1805.00932
 - [ ] Semi-supervised (SSL) / Semi-weakly Supervised (SWSL) ResNet/ResNeXts - https://arxiv.org/abs/1905.00546
+
+* EfficientnetV2, Swin Transformer and VOLO will be updated before Sep 10th.
 
 ## Contacts
 If you have any questions about our work, please do not hesitate to contact us by emails.
