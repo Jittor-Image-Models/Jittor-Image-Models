@@ -11,11 +11,13 @@ import os
 import math
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Callable
+from typing import Callable, Tuple, Optional, Any
 
+import jittor as jt
 import torch
 import torch.nn as nn
-from torch.hub import load_state_dict_from_url, download_url_to_file, urlparse, HASH_REGEX
+from .hub import has_hf_hub, download_cached_file, load_state_dict_from_hf, load_state_dict_from_url
+from .layers import Conv2dSame, Linear
 
 try:
     from torch.hub import get_dir
@@ -51,6 +53,13 @@ def load_state_dict(checkpoint_path, use_ema=False):
 
 
 def load_checkpoint(model, checkpoint_path, use_ema=False, strict=True):
+    if os.path.splitext(checkpoint_path)[-1].lower() in ('.npz', '.npy'):
+        # numpy checkpoint, try to load via model specific load_pretrained fn
+        if hasattr(model, 'load_pretrained'):
+            model.load_pretrained(checkpoint_path)
+        else:
+            raise NotImplementedError('Model cannot load numpy checkpoint')
+        return
     state_dict = load_state_dict(checkpoint_path, use_ema)
     model.load_state_dict(state_dict, strict=strict)
 
@@ -95,7 +104,7 @@ def resume_checkpoint(model, checkpoint_path, optimizer=None, loss_scaler=None, 
         raise FileNotFoundError()
 
 
-def load_custom_pretrained(model, cfg=None, load_fn=None, progress=False, check_hash=False):
+def load_custom_pretrained(model, default_cfg=None, load_fn=None, progress=False, check_hash=False):
     r"""Loads a custom (read non .pth) weight file
 
     Downloads checkpoint file into cache-dir like torch.hub based loaders, but calls
@@ -116,31 +125,12 @@ def load_custom_pretrained(model, cfg=None, load_fn=None, progress=False, check_
             digits of the SHA256 hash of the contents of the file. The hash is used to
             ensure unique names and to verify the contents of the file. Default: False
     """
-    cfg = cfg or getattr(model, 'default_cfg')
-    if cfg is None or not cfg.get('url', None):
+    default_cfg = default_cfg or getattr(model, 'default_cfg', None) or {}
+    pretrained_url = default_cfg.get('url', None)
+    if not pretrained_url:
         _logger.warning("No pretrained weights exist for this model. Using random initialization.")
         return
-    url = cfg['url']
-
-    # Issue warning to move data if old env is set
-    if os.getenv('TORCH_MODEL_ZOO'):
-        _logger.warning('TORCH_MODEL_ZOO is deprecated, please use env TORCH_HOME instead')
-
-    hub_dir = get_dir()
-    model_dir = os.path.join(hub_dir, 'checkpoints')
-
-    os.makedirs(model_dir, exist_ok=True)
-
-    parts = urlparse(url)
-    filename = os.path.basename(parts.path)
-    cached_file = os.path.join(model_dir, filename)
-    if not os.path.exists(cached_file):
-        _logger.info('Downloading: "{}" to {}\n'.format(url, cached_file))
-        hash_prefix = None
-        if check_hash:
-            r = HASH_REGEX.search(filename)  # r is Optional[Match[str]]
-            hash_prefix = r.group(1) if r else None
-        download_url_to_file(url, cached_file, hash_prefix, progress=progress)
+    cached_file = download_cached_file(default_cfg['url'], check_hash=check_hash, progress=progress)
 
     if load_fn is not None:
         load_fn(model, cached_file)
@@ -171,21 +161,31 @@ def adapt_input_conv(in_chans, conv_weight):
             repeat = int(math.ceil(in_chans / 3))
             conv_weight = conv_weight.repeat(1, repeat, 1, 1)[:, :in_chans, :, :]
             conv_weight *= (3 / float(in_chans))
-    conv_weight = conv_weight.to(conv_type)
+    conv_weight = conv_weight.unary(op=conv_type)
     return conv_weight
 
 
-def load_pretrained(model, cfg=None, num_classes=1000, in_chans=3, filter_fn=None, strict=True, progress=False):
-    cfg = cfg or getattr(model, 'default_cfg')
-    if cfg is None or not cfg.get('url', None):
+def load_pretrained(model, default_cfg=None, num_classes=1000, in_chans=3, filter_fn=None, strict=True, progress=False):
+    default_cfg = default_cfg or getattr(model, 'default_cfg', None) or {}
+    pretrained_url = default_cfg.get('url', None)
+    hf_hub_id = default_cfg.get('hf_hub', None)
+    if not pretrained_url and not hf_hub_id:
         _logger.warning("No pretrained weights exist for this model. Using random initialization.")
         return
-
-    state_dict = load_state_dict_from_url(cfg['url'], progress=progress, map_location='cpu')
+    if hf_hub_id and has_hf_hub(necessary=not pretrained_url):
+        _logger.info(f'Loading pretrained weights from Hugging Face hub ({hf_hub_id})')
+        state_dict = load_state_dict_from_hf(hf_hub_id)
+    else:
+        _logger.info(f'Loading pretrained weights from url ({pretrained_url})')
+        state_dict = load_state_dict_from_url(pretrained_url, progress=progress, map_location='cpu')
     if filter_fn is not None:
-        state_dict = filter_fn(state_dict)
+        # for backwards compat with filter fn that take one arg, try one first, the two
+        try:
+            state_dict = filter_fn(state_dict)
+        except TypeError:
+            state_dict = filter_fn(state_dict, model)
 
-    input_convs = cfg.get('first_conv', None)
+    input_convs = default_cfg.get('first_conv', None)
     if input_convs is not None and in_chans != 3:
         if isinstance(input_convs, str):
             input_convs = (input_convs,)
@@ -201,19 +201,24 @@ def load_pretrained(model, cfg=None, num_classes=1000, in_chans=3, filter_fn=Non
                 _logger.warning(
                     f'Unable to convert pretrained {input_conv_name} weights, using random init for this layer.')
 
-    classifier_name = cfg['classifier']
-    label_offset = cfg.get('label_offset', 0)
-    if num_classes != cfg['num_classes']:
-        # completely discard fully connected if model num_classes doesn't match pretrained weights
-        del state_dict[classifier_name + '.weight']
-        del state_dict[classifier_name + '.bias']
-        strict = False
-    elif label_offset > 0:
-        # special case for pretrained weights with an extra background class in pretrained weights
-        classifier_weight = state_dict[classifier_name + '.weight']
-        state_dict[classifier_name + '.weight'] = classifier_weight[label_offset:]
-        classifier_bias = state_dict[classifier_name + '.bias']
-        state_dict[classifier_name + '.bias'] = classifier_bias[label_offset:]
+    classifiers = default_cfg.get('classifier', None)
+    label_offset = default_cfg.get('label_offset', 0)
+    if classifiers is not None:
+        if isinstance(classifiers, str):
+            classifiers = (classifiers,)
+        if num_classes != default_cfg['num_classes']:
+            for classifier_name in classifiers:
+                # completely discard fully connected if model num_classes doesn't match pretrained weights
+                del state_dict[classifier_name + '.weight']
+                del state_dict[classifier_name + '.bias']
+            strict = False
+        elif label_offset > 0:
+            for classifier_name in classifiers:
+                # special case for pretrained weights with an extra background class in pretrained weights
+                classifier_weight = state_dict[classifier_name + '.weight']
+                state_dict[classifier_name + '.weight'] = classifier_weight[label_offset:]
+                classifier_bias = state_dict[classifier_name + '.bias']
+                state_dict[classifier_name + '.bias'] = classifier_bias[label_offset:]
 
     model.load_state_dict(state_dict)
 
@@ -325,20 +330,84 @@ def default_cfg_for_features(default_cfg):
     return default_cfg
 
 
+def overlay_external_default_cfg(default_cfg, kwargs):
+    """ Overlay 'external_default_cfg' in kwargs on top of default_cfg arg.
+    """
+    external_default_cfg = kwargs.pop('external_default_cfg', None)
+    if external_default_cfg:
+        default_cfg.pop('url', None)  # url should come from external cfg
+        default_cfg.pop('hf_hub', None)  # hf hub id should come from external cfg
+        default_cfg.update(external_default_cfg)
+
+
+def set_default_kwargs(kwargs, names, default_cfg):
+    for n in names:
+        # for legacy reasons, model __init__args uses img_size + in_chans as separate args while
+        # default_cfg has one input_size=(C, H ,W) entry
+        if n == 'img_size':
+            input_size = default_cfg.get('input_size', None)
+            if input_size is not None:
+                assert len(input_size) == 3
+                kwargs.setdefault(n, input_size[-2:])
+        elif n == 'in_chans':
+            input_size = default_cfg.get('input_size', None)
+            if input_size is not None:
+                assert len(input_size) == 3
+                kwargs.setdefault(n, input_size[0])
+        else:
+            default_val = default_cfg.get(n, None)
+            if default_val is not None:
+                kwargs.setdefault(n, default_cfg[n])
+
+
+def filter_kwargs(kwargs, names):
+    if not kwargs or not names:
+        return
+    for n in names:
+        kwargs.pop(n, None)
+
+
+def update_default_cfg_and_kwargs(default_cfg, kwargs, kwargs_filter):
+    """ Update the default_cfg and kwargs before passing to model
+
+    FIXME this sequence of overlay default_cfg, set default kwargs, filter kwargs
+    could/should be replaced by an improved configuration mechanism
+
+    Args:
+        default_cfg: input default_cfg (updated in-place)
+        kwargs: keyword args passed to model build fn (updated in-place)
+        kwargs_filter: keyword arg keys that must be removed before model __init__
+    """
+    # Overlay default cfg values from `external_default_cfg` if it exists in kwargs
+    overlay_external_default_cfg(default_cfg, kwargs)
+    # Set model __init__ args that can be determined by default_cfg (if not already passed as kwargs)
+    default_kwarg_names = ('num_classes', 'global_pool', 'in_chans')
+    if default_cfg.get('fixed_input_size', False):
+        # if fixed_input_size exists and is True, model takes an img_size arg that fixes its input size
+        default_kwarg_names += ('img_size',)
+    set_default_kwargs(kwargs, names=default_kwarg_names, default_cfg=default_cfg)
+    # Filter keyword args for task specific model variants (some 'features only' models, etc.)
+    filter_kwargs(kwargs, names=kwargs_filter)
+
+
 def build_model_with_cfg(
         model_cls: Callable,
         variant: str,
         pretrained: bool,
         default_cfg: dict,
-        model_cfg: dict = None,
-        feature_cfg: dict = None,
+        model_cfg: Optional[Any] = None,
+        feature_cfg: Optional[dict] = None,
         pretrained_strict: bool = True,
-        pretrained_filter_fn: Callable = None,
+        pretrained_filter_fn: Optional[Callable] = None,
         pretrained_custom_load: bool = False,
+        kwargs_filter: Optional[Tuple[str]] = None,
         **kwargs):
     pruned = kwargs.pop('pruned', False)
     features = False
     feature_cfg = feature_cfg or {}
+    default_cfg = deepcopy(default_cfg) if default_cfg else {}
+    update_default_cfg_and_kwargs(default_cfg, kwargs, kwargs_filter)
+    default_cfg.setdefault('architecture', variant)
 
     if kwargs.pop('features_only', False):
         features = True
@@ -347,7 +416,7 @@ def build_model_with_cfg(
             feature_cfg['out_indices'] = kwargs.pop('out_indices')
 
     model = model_cls(**kwargs) if model_cfg is None else model_cls(cfg=model_cfg, **kwargs)
-    model.default_cfg = deepcopy(default_cfg)
+    model.default_cfg = default_cfg
 
     if pruned:
         model = adapt_model_from_file(model, variant)
@@ -360,9 +429,13 @@ def build_model_with_cfg(
         else:
             load_pretrained(
                 model,
-                num_classes=num_classes_pretrained, in_chans=kwargs.get('in_chans', 3),
-                filter_fn=pretrained_filter_fn, strict=pretrained_strict)
+                num_classes=num_classes_pretrained,
+                in_chans=kwargs.get('in_chans', 3),
+                filter_fn=pretrained_filter_fn,
+                strict=pretrained_strict)
 
+    # Wrap the model in a feature extraction module if enabled
+    assert not features
     return model
 
 
@@ -372,3 +445,36 @@ def model_parameters(model, exclude_head=False):
         return [p for p in model.parameters()][:-2]
     else:
         return model.parameters()
+
+
+def named_children(x: jt.Module):
+    cd = []
+
+    def callback(parents, k, v, n):
+        if len(parents) == 1 and isinstance(v, jt.Module):
+            cd.append((str(k), v))
+            return False
+
+    x.dfs([], None, callback, None)
+    return cd
+
+def named_apply(fn: Callable, module: nn.Module, name='', depth_first=True, include_root=False) -> nn.Module:
+    if not depth_first and include_root:
+        fn(module=module, name=name)
+    for child_name, child_module in named_children(module):
+        child_name = '.'.join((name, child_name)) if name else child_name
+        named_apply(fn=fn, module=child_module, name=child_name, depth_first=depth_first, include_root=True)
+    if depth_first and include_root:
+        fn(module=module, name=name)
+    return module
+
+
+def named_modules(module: nn.Module, name='', depth_first=True, include_root=False):
+    if not depth_first and include_root:
+        yield name, module
+    for child_name, child_module in named_children(module):
+        child_name = '.'.join((name, child_name)) if name else child_name
+        yield from named_modules(
+            module=child_module, name=child_name, depth_first=depth_first, include_root=True)
+    if depth_first and include_root:
+        yield name, module
