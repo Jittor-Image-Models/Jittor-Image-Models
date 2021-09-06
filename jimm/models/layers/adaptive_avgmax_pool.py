@@ -12,7 +12,32 @@ import jittor.nn as F
 import math
 
 
-def adaptive_avg_pool2d(input, output_size):
+class AdaptiveAvgPool1d(nn.Module):
+    def __init__(self, output_size):
+        super().__init__()
+        self.output_size = output_size
+
+    def execute(self, x):
+        if isinstance(self.output_size, int):
+            oh = self.output_size
+        else:
+            raise TypeError(
+                f"AdaptiveAvgPool2d only support int, tuple or list input. Not support {type(self.output_size)} yet.")
+        if oh == 1:
+            return x.reduce("mean", [2], keepdims=True)
+        N, C, H = x.shape
+        self.sh = math.floor(H / oh)
+        self.ksh = H - (oh - 1) * self.sh
+        h = (H - self.ksh) // self.sh + 1
+        xx = x.reindex([N, C, h, self.ksh], [
+            "i0",  # Nid
+            "i1",  # Cid
+            f"i2*{self.sh}+i3",  # Hid
+        ])
+        return xx.reduce("mean", [3])
+
+
+def adaptive_avg_pool2d(x, output_size):
     if isinstance(output_size, int):
         oh = output_size
         ow = output_size
@@ -23,15 +48,15 @@ def adaptive_avg_pool2d(input, output_size):
         raise TypeError(
             f"AdaptiveAvgPool2d only support int, tuple or list input. Not support {type(self.output_size)} yet.")
     if oh == 1 and ow == 1:
-        return input.reduce("mean", [2, 3], keepdims=True)
-    N, C, H, W = input.shape
+        return x.reduce("mean", [2, 3], keepdims=True)
+    N, C, H, W = x.shape
     sh = math.floor(H / oh)
     sw = math.floor(W / ow)
     ksh = H - (oh - 1) * sh
     ksw = W - (ow - 1) * sw
     h = (H - ksh) // sh + 1
     w = (W - ksw) // sw + 1
-    xx = input.reindex([N, C, h, w, ksh, ksw], [
+    xx = x.reindex([N, C, h, w, ksh, ksw], [
         "i0",  # Nid
         "i1",  # Cid
         f"i2*{sh}+i4",  # Hid
@@ -40,7 +65,7 @@ def adaptive_avg_pool2d(input, output_size):
     return xx.reduce("mean", [4, 5])
 
 
-def adaptive_max_pool2d(input, output_size):
+def adaptive_max_pool2d(x, output_size):
     if isinstance(output_size, int):
         oh = output_size
         ow = output_size
@@ -51,15 +76,15 @@ def adaptive_max_pool2d(input, output_size):
         raise TypeError(
             f"AdaptiveAvgPool2d only support int, tuple or list input. Not support {type(self.output_size)} yet.")
     if oh == 1 and ow == 1:
-        return input.reduce("max", [2, 3], keepdims=True)
-    N, C, H, W = input.shape
+        return x.reduce("max", [2, 3], keepdims=True)
+    N, C, H, W = x.shape
     sh = math.floor(H / oh)
     sw = math.floor(W / ow)
     ksh = H - (oh - 1) * sh
     ksw = W - (ow - 1) * sw
     h = (H - ksh) // sh + 1
     w = (W - ksw) // sw + 1
-    xx = input.reindex([N, C, h, w, ksh, ksw], [
+    xx = x.reindex([N, C, h, w, ksh, ksw], [
         "i0",  # Nid
         "i1",  # Cid
         f"i2*{sh}+i4",  # Hid
@@ -105,6 +130,7 @@ def select_adaptive_pool2d(x, pool_type='avg', output_size=1):
 
 class AdaptiveMaxPool2d(nn.Module):
     def __init__(self, output_size):
+        super(AdaptiveMaxPool2d, self).__init__()
         self.output_size = output_size
 
     def execute(self, x):

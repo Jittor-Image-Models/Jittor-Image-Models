@@ -85,6 +85,7 @@ _ACT_LAYER_JIT = dict(
     hard_mish=HardMishJit
 )
 
+
 # def get_act_fn(name: Union[Callable, str] = 'relu'):
 #     """ Activation Function Factory
 #     Fetching activation fns by name with this function allows export or torch script friendly
@@ -105,7 +106,7 @@ _ACT_LAYER_JIT = dict(
 #     return _ACT_FN_DEFAULT[name]
 
 
-def get_act_layer(name='relu'):
+def get_act_layer(name: Union[Type[nn.Module], str] = 'relu'):
     """ Activation Layer Factory
     Fetching activation layers by name with this function allows export or torch script friendly
     functions to be returned dynamically based on current config.
@@ -120,3 +121,10 @@ def get_act_layer(name='relu'):
         if name in _ACT_LAYER_JIT:
             return _ACT_LAYER_JIT[name]
     return _ACT_LAYER_DEFAULT[name]
+
+
+def create_act_layer(name: Union[nn.Module, str], **kwargs):
+    act_layer = get_act_layer(name)
+    if act_layer is None:
+        return None
+    return act_layer(**kwargs)

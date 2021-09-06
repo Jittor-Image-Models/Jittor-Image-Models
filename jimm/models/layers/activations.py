@@ -14,7 +14,10 @@ import jittor.nn as F
 def swish(x):
     """Swish - Described in: https://arxiv.org/abs/1710.05941
     """
-    return x * x.sigmoid()
+    x = x.unary('float64')
+    x = x * x.sigmoid()
+    x = x.unary('float32')
+    return x
 
 
 class Swish(nn.Module):

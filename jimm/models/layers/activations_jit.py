@@ -14,7 +14,9 @@ import jittor.nn as F
 def swish_jit(x):
     """Swish - Described in: https://arxiv.org/abs/1710.05941
     """
+    x = x.unary('float64')
     x = x * x.sigmoid()
+    x = x.unary('float32')
     return x
 
 

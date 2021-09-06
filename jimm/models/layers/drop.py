@@ -136,4 +136,22 @@ class DropPath(nn.Module):
         self.drop_prob = drop_prob
 
     def execute(self, x):
-        return drop_path(x, self.drop_prob, self.is_train)
+        return drop_path(x, self.drop_prob, self.is_training())
+
+
+class Dropout2d(nn.Module):
+    def __init__(self, p):
+        super(Dropout2d, self).__init__()
+        self.p = p
+
+    def execute(self, x):
+        output = input
+        if self.p > 0 and self.is_training():
+            if self.p == 1:
+                noise = jt.zeros(input.shape)
+                output = output * noise
+            else:
+                noise = jt.rand(input.shape[:2] + (1, 1))
+                noise = (noise > self.p).int()
+                output = output * noise / (1.0 - self.p)  # div keep prob
+        return output
