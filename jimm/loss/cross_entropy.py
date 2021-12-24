@@ -21,9 +21,12 @@ class LabelSmoothingCrossEntropy(nn.Module):
         self.confidence = 1. - smoothing
 
     def execute(self, x: jt.Var, target: jt.Var) -> jt.Var:
-        logprobs = x - x.exp().sum(1).log()
-        nll_loss = jt.misc.gather(-logprobs, dim=-1, index=target.unsqueeze(1))
-        nll_loss = nll_loss.squeeze(1)
+        if target.ndim <= 1:
+            target = target.broadcast(x, [1])
+            target = (target.index(1) == target).unary(op='float32')
+        # logprobs = x - x.exp().sum(1).log()
+        logprobs = nn.log_softmax(x, dim=-1)
+        nll_loss = -(logprobs * target).sum(1)
         smooth_loss = -logprobs.mean(dim=-1)
         loss = self.confidence * nll_loss + self.smoothing * smooth_loss
         return loss.mean()
@@ -35,11 +38,12 @@ class CrossEntropy(nn.Module):
         super().__init__()
 
     def execute(self, x: jt.Var, target: jt.Var) -> jt.Var:
-        if len(target.shape) <= 1:
+        if target.ndim <= 1:
             target = target.broadcast(x, [1])
             target = target.index(1) == target
-        logprobs = x - x.exp().sum(1, keepdims=True).log()
-        loss = -logprobs * target
+        x = x - x.max([1], keepdims=True)
+        logsum = x.exp().sum(1).log()
+        loss = logsum - (x * target).sum(1)
         return loss.mean()
         
 
