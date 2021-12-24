@@ -54,8 +54,8 @@ class RandomCutmix:
         if random.random() >= self.p:
             return batch, target
             
-        batch_rolled = batch.roll(1, 0)
-        target_rolled = target.roll(1,0)
+        batch_rolled = np.roll(batch, 1, 0)
+        target_rolled = np.roll(target, 1,0)
         
         lambda_param = np.random.beta(self.alpha, self.alpha)
         W, H = batch.shape[-1], batch.shape[-2]
@@ -73,10 +73,20 @@ class RandomCutmix:
         y2 = int(min(r_y + r_h_half, H))
         
         batch[:,:,y1:y2,x1:x2] = batch_rolled[:,:,y1:y2,x1:x2]
-        lambda_param = 1 - (x2 - x1) * (y2 * y1) / (W * H)
+        lambda_param = 1 - (x2 - x1) * (y2 - y1) / (W * H)
         
         target_rolled *= 1 - lambda_param
         target = target * lambda_param + target_rolled
         
         return batch, target
-        
+
+
+class RandomChoice:
+
+    def __init__(self, transforms, p=None):
+        self.transforms = transforms
+        self.p = p
+    
+    def __call__(self, *args):
+        t = random.choices(self.transforms, weights=self.p)[0]
+        return t(*args)

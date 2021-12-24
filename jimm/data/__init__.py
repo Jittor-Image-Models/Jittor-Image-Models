@@ -1,2 +1,2 @@
 from .constants import *
-from .transforms import RandomMixup, RandomCutmix
+from .transforms import RandomMixup, RandomCutmix, RandomChoice
