@@ -48,7 +48,7 @@ Model validation results can be found in the following url: https://rwightman.gi
 ## Contacts
 If you have any questions about our work, please do not hesitate to contact us by emails.
 
-Xuhao Sun: sun_xu_hao@163.com
+Xuhao Sun: sunxh@njust.edu.cn
 
 Yang Shen: shenyang_98@njust.edu.cn
 
