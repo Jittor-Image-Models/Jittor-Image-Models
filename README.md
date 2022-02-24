@@ -13,8 +13,8 @@ In our `jimm`, we reproduce part of [pytorch-image-models](https://github.com/rw
 ## Update News
 ### Feb 25, 2022
 * Add VAN, VAN pretrained models can be download from https://github.com/Visual-Attention-Network/VAN-Classification.
-* You have to transfer the download .pth file by following:
-  model = torch.load('van_base_828.pth', map_location=torch.device('cpu'))
+* You have to transfer the download .pth file by following:  
+  model = torch.load('van_base_828.pth', map_location=torch.device('cpu'))  
   torch.save(model['state_dict'],'van_base.pth')
 
 ### Sep 06, 2021
