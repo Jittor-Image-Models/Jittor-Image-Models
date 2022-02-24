@@ -11,6 +11,12 @@ Jittor is a high-performance deep learning framework based on JIT compiling and 
 In our `jimm`, we reproduce part of [pytorch-image-models](https://github.com/rwightman/pytorch-image-models) in the [Jittor](https://github.com/Jittor/jittor) deep learning framework, and also provide a training demo to make it easier for you to get started.
 
 ## Update News
+### Feb 25, 2022
+* Add VAN, VAN pretrained models can be download from https://github.com/Visual-Attention-Network/VAN-Classification.
+* You have to transfer the download .pth file by following:
+* model = torch.load('van_base_828.pth', map_location=torch.device('cpu'))
+* torch.save(model['state_dict'],'van_base.pth')
+
 ### Sep 06, 2021
 * Add VOLO, Swin Transformer, EfficientNet-V2
 * VOLO pretrained models can be download from https://github.com/sail-sg/volo.
@@ -32,6 +38,7 @@ In our `jimm`, we reproduce part of [pytorch-image-models](https://github.com/rw
     * Weakly-supervised (WSL) Instagram pretrained / ImageNet tuned ResNeXt101 - https://arxiv.org/abs/1805.00932
     * Semi-supervised (SSL) / Semi-weakly Supervised (SWSL) ResNet/ResNeXts - https://arxiv.org/abs/1905.00546
 * Swin Transformer - https://arxiv.org/abs/2103.14030
+* VAN - https://arxiv.org/abs/2202.09741
 * ViT - https://arxiv.org/abs/2010.11929
 * VOLO - https://arxiv.org/abs/2106.13112
 
