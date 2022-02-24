@@ -7,3 +7,4 @@ from .vision_transformer_hybrid import *
 from .hrnet import *
 from .swin_transformer import *
 from .volo import *
+from .van import *
